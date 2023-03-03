@@ -10,8 +10,18 @@ if __name__ == "__main__":
              maze_data[i][j] != '0'}
 
     dim = len(maze_data)
+    entry = exit = (0, 0)
+
     for cell in cells:
         _x, _y = cell
+        # Find entry cell
+        if maze_data[_x][_y] == '2':
+            entry = cell
+        # Find exit cell
+
+        if maze_data[_x][_y] == '3':
+            exit = cell
+
         for (x, y) in [(_x, _y - 1), (_x, _y + 1), (_x - 1, _y), (_x + 1, _y)]:
             if 0 <= x < dim and 0 <= y < dim:
                 if maze_data[x][y] != '0':
@@ -20,3 +30,4 @@ if __name__ == "__main__":
     # Print cells relationship matrix
     for c in cells:
         cells[c].display()
+    print(entry, exit)
