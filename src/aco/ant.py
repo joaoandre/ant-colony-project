@@ -1,9 +1,14 @@
 from random import random
+import names
 
 
 class Ant:
     def __init__(self):
         self.path = []
+        self.name = names.get_first_name()
+
+    def __repr__(self):
+        return f"Ant<{self.name}>"
 
     def get_path_length(self):
         return len(self.path)

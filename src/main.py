@@ -1,5 +1,19 @@
+import logging
+
 from aco.maze import Cell
 from aco.data import load_data
+from aco.ant import Ant
+from aco.log_formatter import CustomFormatter
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+fmt = '%(asctime)s | %(levelname)8s | %(message)s'
+
+stdout_handler = logging.StreamHandler()
+stdout_handler.setLevel(logging.DEBUG)
+stdout_handler.setFormatter(CustomFormatter(fmt))
+logger.addHandler(stdout_handler)
+
 
 if __name__ == "__main__":
     # load maze data from file
@@ -27,6 +41,34 @@ if __name__ == "__main__":
                 if maze_data[x][y] != '0':
                     cells[cell].add_connected_cell(cells[(x, y)])
 
-    # Print cells relationship matrix
-    for c in cells:
-        cells[c].display()
+    # Set optimization parameters
+    rho = 0.1
+    alpha = 5
+    n_ant = 50
+    initial_pheromone = 0.1
+    max_iterations = 50
+    entry_cell = cells[entry]
+    exit_cell = cells[exit]
+
+    logger.debug("Setting initial feremone on cells")
+    for cell in cells:
+        cells[cell].set_pheromone(initial_pheromone)
+
+    logger.debug("Creating Ants")
+    ants = [Ant() for _ in range(n_ant)]
+    epoch = 0
+
+    logger.debug("Starting Optimization")
+    while epoch < max_iterations:
+        logger.debug("Getting path for ants")
+        for ant in ants:
+            logger.warning(f"{ant} is searching for an exit path")
+            ant.reset()
+            ant.get_path(entry_cell, exit_cell, alpha)
+
+        logger.debug("Updating pheromone on cells")
+        for cell in cells:
+            cells[cell].update_pheromone(ants, rho)
+
+        logger.info(f"Interaction: {epoch}")
+        epoch += 1
