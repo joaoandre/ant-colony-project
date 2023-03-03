@@ -6,6 +6,8 @@ authors = ["João André <joao.andre@mercadolivre.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+names = "^0.3.0"
+matplotlib = "^3.7.0"
 
 [tool.poetry.dev-dependencies]
 
