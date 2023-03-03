@@ -30,4 +30,3 @@ if __name__ == "__main__":
     # Print cells relationship matrix
     for c in cells:
         cells[c].display()
-    print(entry, exit)
