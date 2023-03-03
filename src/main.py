@@ -1,9 +1,14 @@
+import collections
 import logging
+import time
 
 from aco.maze import Cell
 from aco.data import load_data
 from aco.ant import Ant
 from aco.log_formatter import CustomFormatter
+from matplotlib import pyplot as plt
+
+from src.aco.visualization import generate_solution_plot, generate_convergence_plot
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -55,12 +60,13 @@ if __name__ == "__main__":
         cells[cell].set_pheromone(initial_pheromone)
 
     logger.debug("Creating Ants")
+    time_data_points = []
     ants = [Ant() for _ in range(n_ant)]
     epoch = 0
 
     logger.debug("Starting Optimization")
     while epoch < max_iterations:
-        logger.debug("Getting path for ants")
+        begin = time.time()
         for ant in ants:
             logger.warning(f"{ant} is searching for an exit path")
             ant.reset()
@@ -69,6 +75,22 @@ if __name__ == "__main__":
         logger.debug("Updating pheromone on cells")
         for cell in cells:
             cells[cell].update_pheromone(ants, rho)
-
-        logger.info(f"Interaction: {epoch}")
+        time_taken = time.time() - begin
+        time_data_points.append((epoch, time_taken))
+        logger.info(f"Interaction: {epoch}. Time taken: {time_taken}")
+        if epoch == 0:
+            paths = collections.Counter([tuple(ant.path) for ant in ants])
+            solution = list(max(paths, key=paths.get))
+            generate_solution_plot(solution, maze_data, entry, exit, "first_solution")
         epoch += 1
+
+    logger.debug("Finished Optimization")
+
+    # calculate the frequency of each path
+    paths = collections.Counter([tuple(ant.path) for ant in ants])
+
+    # find the path with the maximum frequency
+    solution = list(max(paths, key=paths.get))
+
+    generate_solution_plot(solution, maze_data, entry, exit, "final_solution")
+    generate_convergence_plot(data_points=time_data_points)
